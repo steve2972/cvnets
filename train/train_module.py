@@ -13,12 +13,17 @@ class TrainModule(lightning.LightningModule):
         learning_rate:float=1e-3,
         scheduler:str="steplr",
         num_gpus:int=4,
+        config: object = None
     ):
         super().__init__()
         self.sync_dist = num_gpus > 1
+
+        self.config = config
         self.optimizer = optimizer
         self.lr = learning_rate
         self.scheduler = scheduler
+
+
         self.model = model
 
 
@@ -26,24 +31,30 @@ class TrainModule(lightning.LightningModule):
         return self.model(x)
 
     def configure_optimizers(self):
-        optimizer = get_optimizer(self.parameters(), opt=self.optimizer, lr=self.lr)
-        lr_scheduler = get_scheduler(optimizer, lr_scheduler=self.scheduler)
+        optimizer = get_optimizer(self.parameters(), opt=self.optimizer, lr=self.lr, config=self.config)
+        lr_scheduler = get_scheduler(optimizer, lr_scheduler=self.scheduler, config=self.config)
 
         return [optimizer], [lr_scheduler]
 
     def training_step(self, batch, batch_idx) -> Tensor:
         x, y = batch
         y_hat = self(x)
-        scheduler = self.lr_schedulers()
+        # scheduler = self.lr_schedulers()
         loss = torch.nn.functional.cross_entropy(y_hat, y)
         self.log(
             "train_loss", loss, 
             prog_bar=True,
             sync_dist=self.sync_dist
         )
+        acc1, acc5 = accuracy(y_hat, y, topk=(1,5))
+        self.log(
+            "train_accuracy", {"acc1":acc1, "acc5":acc5},
+            prog_bar=False,
+            sync_dist=self.sync_dist
+        )
 
-        if self.trainer.is_last_batch:
-            scheduler.step()
+        # if self.trainer.is_last_batch:
+        #     scheduler.step()
         return loss
 
     def eval_step(self, batch, batch_idx, prefix: str="test"):

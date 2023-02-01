@@ -29,7 +29,7 @@ class ConvBlock(nn.Module):
             kernel_size, strides, padding, 
             groups=groups, dilation=dilation
         )
-        self.bn   = nn.BatchNorm2d(out_features)
+        self.bn   = nn.BatchNorm2d(out_features, momentum=0.01)
         self.act = Activation(activation, **kwargs)
 
     def forward(self, x):

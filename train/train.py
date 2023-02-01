@@ -8,7 +8,7 @@ from data.imagenet import ImageNetModule
 def train(
     model:torch.nn.Module,
     config:object):
-    """ Train a model on ImageNet using PyTorch Lightning. Uses the state-of-the-art data augmentation strategies.
+    """ Train a model on ImageNet using PyTorch Lightning. Uses state-of-the-art data augmentation strategies.
     
     Args:
         model: (torch.nn.Module) torch model to train
@@ -17,7 +17,13 @@ def train(
     """
     # Initialize data and model
     dataloader = ImageNetModule(config.root, resize_size=config.resize_size, crop_size=config.crop_size, batch_size=config.batch_size, workers=config.workers)
-    train_module = TrainModule(model, optimizer=config.optimizer, learning_rate=config.learning_rate, scheduler=config.scheduler, num_gpus=config.num_gpus)
+    train_module = TrainModule(
+        model, 
+        optimizer=config.optimizer, 
+        learning_rate=config.learning_rate, 
+        scheduler=config.scheduler, 
+        num_gpus=config.num_gpus
+    )
 
     
     if config.use_wandb:

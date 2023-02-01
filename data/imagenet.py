@@ -38,9 +38,9 @@ class ImageNetModule(lightning.LightningDataModule):
 
     def train_transform(self):
         return Compose([
+            Resize(self.resize_size, interpolation=self.interpolation),
             RandomResizedCrop(self.crop_size, interpolation=self.interpolation),
-            RandomHorizontalFlip(),
-            AutoAugment(),
+            AutoAugment(interpolation=self.interpolation),
             PILToTensor(),
             ConvertImageDtype(torch.float),
             Normalize(mean=self.mean, std=self.std),
@@ -56,7 +56,7 @@ class ImageNetModule(lightning.LightningDataModule):
         ])
     
     def train_dataloader(self):
-        return DataLoader(self.train, shuffle=True, batch_size=self.batch_size, num_workers = self.workers)
+        return DataLoader(self.train, shuffle=True, batch_size=self.batch_size, num_workers=self.workers)
     def val_dataloader(self):
         return DataLoader(self.val, batch_size=self.batch_size, num_workers = self.workers)
     def test_dataloader(self):
