@@ -23,9 +23,18 @@ class MobileVitv2(BaseModel):
 
         self.layer_1 = make_mobilenet_layer(32, 64, num_blocks=1, expand_ratio=2, strides=1)
         self.layer_2 = make_mobilenet_layer(64, 128,num_blocks=2, expand_ratio=2, strides=2)
-        self.layer_3 = make_mit_layer(128, 256, 128, 2, attn_blocks=2, strides=2, expand_ratio=2)
-        self.layer_4 = make_mit_layer(256, 384, 192, 2, attn_blocks=4, strides=2, expand_ratio=2)
-        self.layer_5 = make_mit_layer(384, 512, 256, 2, attn_blocks=3, strides=2, expand_ratio=2)
+        self.layer_3 = make_mit_layer(128, 256, 128, 2, 
+            attn_blocks=2, strides=2, expand_ratio=2, 
+            ffn_dropout=0.2, attn_dropout=0.2
+        )
+        self.layer_4 = make_mit_layer(256, 384, 192, 2, 
+            attn_blocks=4, strides=2, expand_ratio=2,
+            ffn_dropout=0.2, attn_dropout=0.2
+        )
+        self.layer_5 = make_mit_layer(384, 512, 256, 2, 
+            attn_blocks=3, strides=2, expand_ratio=2, 
+            ffn_dropout=0.2, attn_dropout=0.2
+        )
         self.conv_1x1_exp = Identity()
 
         self.classifier = nn.Sequential(
